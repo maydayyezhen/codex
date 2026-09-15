@@ -2,9 +2,10 @@ interface MainMenuProps {
   onContinue: () => void
   onNewGame: () => void
   onLoadGame: () => void
+  onSettings: () => void
 }
 
-export function MainMenu({ onContinue, onNewGame, onLoadGame }: MainMenuProps) {
+export function MainMenu({ onContinue, onNewGame, onLoadGame, onSettings }: MainMenuProps) {
   return (
     <main className="main-menu-screen">
       <div className="main-menu">
@@ -15,6 +16,10 @@ export function MainMenu({ onContinue, onNewGame, onLoadGame }: MainMenuProps) {
           <button type="button" onClick={onLoadGame}>载入游戏</button>
         </nav>
       </div>
+
+      <button type="button" className="main-menu__settings" onClick={onSettings}>
+        设置
+      </button>
     </main>
   )
 }
