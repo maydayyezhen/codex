@@ -3,9 +3,10 @@ import type { GameModule } from '../types'
 
 interface ModuleCarouselProps {
   modules: GameModule[]
+  onContinue: (module: GameModule) => void
 }
 
-export function ModuleCarousel({ modules }: ModuleCarouselProps) {
+export function ModuleCarousel({ modules, onContinue }: ModuleCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [direction, setDirection] = useState<'left' | 'right' | null>(null)
 
@@ -58,7 +59,7 @@ export function ModuleCarousel({ modules }: ModuleCarouselProps) {
         <div className="module-card__tags">{current.tags.join(' · ')}</div>
         <p className="module-card__hook">{current.hook}</p>
         <p className="module-card__description">{current.description}</p>
-        <button type="button" className="primary-action">继续</button>
+        <button type="button" className="primary-action" onClick={() => onContinue(current)}>继续</button>
       </article>
 
       <button type="button" className="module-carousel__zone module-carousel__zone--right" onClick={moveNext} aria-label="下一个模组">›</button>
