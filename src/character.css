@@ -130,29 +130,35 @@
 
 .character-carousel__nav {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 100px;
+  top: 50%;
+  width: 48px;
+  height: 64px;
+  padding: 0;
   border: 0;
   background: transparent;
   color: #393939;
   font-size: 44px;
   font-weight: 200;
+  line-height: 1;
   cursor: pointer;
-  transition: color .18s ease, background .18s ease;
+  transform: translateY(-50%);
+  transition: color .18s ease, transform .18s ease;
 }
 
 .character-carousel__nav:hover {
   color: #aaa;
-  background: rgba(255, 255, 255, .012);
+}
+
+.character-carousel__nav:active {
+  transform: translateY(-50%) scale(.94);
 }
 
 .character-carousel__nav--left {
-  left: 0;
+  left: 28px;
 }
 
 .character-carousel__nav--right {
-  right: 0;
+  right: 28px;
 }
 
 .character-carousel__position {
@@ -304,8 +310,17 @@
   }
 
   .character-carousel__nav {
-    width: 42px;
+    width: 36px;
+    height: 52px;
     font-size: 30px;
+  }
+
+  .character-carousel__nav--left {
+    left: 6px;
+  }
+
+  .character-carousel__nav--right {
+    right: 6px;
   }
 
   .character-detail-backdrop {
