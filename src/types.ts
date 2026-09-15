@@ -1,4 +1,4 @@
-export type Screen = 'menu' | 'new-game' | 'character-select' | 'load-game' | 'settings'
+export type Screen = 'menu' | 'new-game' | 'character-select' | 'character-create' | 'load-game' | 'settings'
 
 export interface SaveRecord {
   id: string
