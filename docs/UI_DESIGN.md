@@ -12,7 +12,7 @@ Current design priorities:
 
 - restrained, minimal interface;
 - strong use of typography, spacing, hierarchy, and negative space;
-- no decorative UI added merely to make the page feel more "game-like";
+- no decorative UI added merely to make the page feel more game-like;
 - avoid card-dashboard layouts unless the information model truly needs cards;
 - secondary-page titles behave like an overlay/HUD layer, not like document-flow content;
 - keyboard interaction is first-class;
@@ -50,7 +50,7 @@ src/
 └─ types.ts
 ```
 
-The UI is intentionally split into pages, reusable components, and prototype data. Prototype data should later be replaceable by backend/API data without rewriting the page components.
+Prototype data is separated from UI components so backend/API data can replace it later without changing the page structure.
 
 ## 3. Global page model
 
@@ -76,25 +76,7 @@ PageShell
 └─ PageBody
 ```
 
-`PageHeader` is an overlay layer.
-
-It is absolutely positioned using shared coordinates and does **not** reserve or consume layout space.
-
-Conceptually:
-
-```text
-┌────────────────────────────────────────────┐
-│  PageHeader overlay                       │
-│  LORE / ...                               │
-│  页面标题                                  │
-│                                            │
-│  ┌──────────────────────────────────────┐  │
-│  │                                      │  │
-│  │      full-screen page canvas         │  │
-│  │                                      │  │
-│  └──────────────────────────────────────┘  │
-└────────────────────────────────────────────┘
-```
+`PageHeader` is an overlay layer. It is absolutely positioned using shared coordinates and does **not** reserve or consume layout space.
 
 The page content layer always receives the full viewport. Each page decides its own internal composition independently of the title.
 
@@ -119,12 +101,10 @@ Rules:
 - title position must remain consistent across secondary pages;
 - pages must not individually redefine the global title position;
 - title must not push page content downward;
-- title is non-interactive and currently uses `pointer-events: none`;
+- title is non-interactive and uses `pointer-events: none`;
 - if the title overlaps a page composition, fix that page's composition rather than reintroducing shared header spacing.
 
 ## 5. Navigation and keyboard behavior
-
-Navigation is coordinated at the application level where appropriate.
 
 Current behavior:
 
@@ -145,11 +125,11 @@ Primary component: `ModuleCarousel.tsx`
 
 Module selection should feel like browsing worlds/stories rather than choosing a row from a management interface.
 
-Therefore the page uses a full-screen carousel instead of a list-detail layout.
+The page therefore uses a full-screen carousel instead of a list-detail layout.
 
 ### 6.2 Composition
 
-The active module occupies the visual center of the entire viewport.
+The active module occupies the visual center of the full viewport.
 
 Displayed information:
 
@@ -170,7 +150,7 @@ Users can switch modules with:
 - keyboard `ArrowLeft` / `ArrowRight`;
 - pagination dots.
 
-The left/right switch controls must **not display adjacent module names**. Only the directional controls remain visible.
+The left/right switch controls must not display adjacent module names. Only the directional controls remain visible.
 
 ### 6.4 Layout rule
 
@@ -189,7 +169,7 @@ Components:
 
 ### 7.1 Design goal
 
-The load screen follows a game-save master/detail pattern inspired by CRPG save interfaces:
+The load screen follows a game-save master/detail pattern:
 
 - left side: compact textual save list;
 - right side: selected save preview and details.
@@ -205,36 +185,56 @@ Conceptually:
 │ Header overlay                                          │
 │                                                         │
 │  ┌ fixed save browser ┐      ┌──────────────────────┐   │
-│  │ count / test tools │      │                      │   │
-│  │ 01 ...             │      │       preview        │   │
-│  │ 02 ...             │      │                      │   │
-│  │ 03 ...             │      └──────────────────────┘   │
-│  │ ... scroll ...     │                                 │
-│  └────────────────────┘      save title       载入游戏  │
+│  │ 01 ...             │      │                      │   │
+│  │ 02 ...             │      │       preview        │   │
+│  │ 03 ...             │      │                      │   │
+│  │ ... scroll ...     │      └──────────────────────┘   │
+│  └────────────────────┘                                 │
+│                              save title       载入游戏  │
 │                              location                   │
 │                              play time                  │
 │                              saved at                   │
 └─────────────────────────────────────────────────────────┘
 ```
 
-The load-game composition is positioned independently within the full-screen canvas. The title overlay does not create top padding for the page.
-
 Desktop layout behavior:
 
 - the entire load-game composition is centered in the viewport;
 - width is capped at 1200px;
-- the left column occupies a fixed-height browser region within the composition;
-- the left browser has a persistent background color even when it contains only a few saves or no saves;
-- save entries scroll inside that fixed browser region rather than changing the page size;
-- the right column uses the full height of the load-game composition;
-- the right preview is anchored to the top of the right column;
-- the save information and primary action are anchored to the bottom of the right column;
-- the vertical space between preview and details is flexible and expands automatically;
-- the right column therefore behaves as one vertically balanced unit rather than several floating blocks;
-- the right preview is currently an empty 16:9 placeholder;
-- no image assets are required at this stage.
+- the left column is a fixed-height save browser with a persistent background color;
+- save entries scroll inside that fixed browser region instead of changing page geometry;
+- the right column uses the full height of the composition;
+- the right preview is anchored to the top;
+- save information and the primary action are anchored to the bottom;
+- flexible vertical space separates preview and details;
+- the preview is currently an empty 16:9 placeholder.
 
-The structural rule for the right column is:
+### 7.3 Save browser behavior
+
+The left side is treated as one fixed visual region rather than a transparent list floating on the page background.
+
+Its production structure is:
+
+```text
+SaveBrowser
+└─ SaveList   ← internal scroll container
+```
+
+Rules:
+
+- the browser background remains visible regardless of save count;
+- the browser geometry must not grow with the number of saves;
+- only `SaveList` scrolls;
+- each save entry contains compact identifying information;
+- the selected entry is visually emphasized;
+- keyboard navigation keeps the selected entry visible inside the scroll viewport;
+- the empty-list state remains valid even though the current prototype data contains saves.
+
+The temporary add/delete/count stress-test controls used during layout validation have been removed and are not part of the production UI design.
+
+### 7.4 Right-side detail behavior
+
+The structural rule is:
 
 ```text
 SaveDetail
@@ -244,63 +244,19 @@ SaveDetail
    └─ Load action
 ```
 
-This is implemented with a vertical flex container using `justify-content: space-between`.
+Desktop `SaveDetail` is a vertical flex container using `justify-content: space-between`.
 
-### 7.3 Save browser behavior
-
-The left side is treated as one fixed visual region rather than a transparent list floating on the background.
-
-Its structure is:
-
-```text
-SaveBrowser
-├─ PrototypeToolbar
-└─ SaveList            ← scroll container
-```
-
-The background belongs to the browser/list region itself, so its geometry remains visible regardless of how many saves are present.
-
-Each save entry contains compact identifying information rather than a long narrative summary.
-
-The selected entry is visually emphasized.
-
-When the list exceeds the available height, only `SaveList` scrolls.
-
-When keyboard navigation or a newly created test save selects an item outside the current viewport, the selected entry is automatically scrolled into view using nearest-edge behavior.
-
-The empty-list state is supported and keeps the browser geometry intact.
-
-### 7.4 Prototype save stress-test controls
-
-The current prototype intentionally includes temporary controls in the fixed save browser:
-
-- `新增存档` appends generated mock save data and selects the new record;
-- `删除选中` removes the current record and moves selection to a neighboring record;
-- all saves can be deleted, producing a valid empty state;
-- the displayed save count updates dynamically.
-
-These controls exist specifically to stress-test layout behavior with different save counts. They are **prototype/development controls**, not a final production interaction decision.
-
-They are useful for validating:
-
-- fixed browser height;
-- scrolling behavior with many records;
-- empty and near-empty states;
-- selected-state stability after deletion;
-- right-side detail behavior when no save exists;
-- text overflow and spacing under changing data volume.
-
-If these controls are removed later, the fixed-browser and dynamic-list behavior should remain.
+The load button belongs to the bottom detail group and must not float independently elsewhere on the screen.
 
 ### 7.5 Mobile behavior
 
 On narrow screens the master/detail layout becomes vertical.
 
-The save browser receives an explicit mobile height so that its fixed-background/scroll behavior can still be tested independently from the detail section.
+The save browser receives an explicit mobile height so its background and internal scrolling behavior remain stable.
 
-The desktop top/bottom anchoring rule is relaxed on mobile: `SaveDetail` becomes normal-height content with an explicit gap between preview and details so that the vertical stack remains readable.
+The desktop top/bottom anchoring rule is relaxed on mobile: `SaveDetail` becomes normal-height content with an explicit gap between preview and details.
 
-The title remains an overlay. Any spacing used to keep mobile content readable belongs to the load-game page's local layout and is not reserved by `PageShell`.
+The title remains an overlay. Any local spacing required for readability belongs to the page composition, not `PageShell`.
 
 ## 8. Visual language
 
@@ -352,26 +308,27 @@ Responsible for:
 Responsible for:
 
 - compact save selection;
+- internal scrolling;
 - the empty-list state;
-- keeping the currently selected item visible inside the scroll viewport.
+- keeping the selected item visible inside the scroll viewport.
 
 ### `SaveDetail`
 
 Responsible for:
 
-- the selected save preview placeholder;
+- selected-save preview placeholder;
 - selected-save metadata;
-- the load action;
-- the no-selection/empty-list detail state;
-- keeping the preview anchored to the top and the detail/action group anchored to the bottom on desktop.
+- load action;
+- no-selection/empty-list detail state;
+- top/bottom anchoring on desktop.
 
 ### `LoadGamePage`
 
-Currently also owns the prototype-only dynamic save collection used for layout stress testing.
+Responsible for composing the fixed save browser and the save detail area, and for page-level keyboard selection behavior.
 
 ### `App`
 
-Currently responsible for top-level screen selection and global `Esc` behavior.
+Responsible for top-level screen selection and global `Esc` behavior.
 
 ## 10. Current non-goals
 
@@ -396,12 +353,12 @@ Whenever UI work is changed, check the following:
 - Does the page still look like a game interface rather than a dashboard?
 - Does `PageHeader` remain independent from page-body layout?
 - Are titles still aligned consistently across pages?
-- Is there any visible back button? If yes, remove it unless the navigation design was explicitly changed.
+- Is there any visible back button? If yes, remove it unless navigation is explicitly redesigned.
 - Does `Esc` still return from secondary pages?
 - Are keyboard controls preserved?
-- Does the save browser keep its fixed geometry when save count changes?
-- Does the selected save remain visible when navigating a long list?
-- Does deleting all saves produce a valid empty state?
+- Does the save browser keep fixed geometry as save count changes?
+- Does a long save list scroll internally rather than expand the page?
+- Does the selected save stay visible during keyboard navigation?
 - Did a reusable layout pattern get duplicated instead of componentized?
 - Does this document still describe the actual implementation?
 
