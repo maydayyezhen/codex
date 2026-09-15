@@ -1,29 +1,47 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { CharacterProfile } from '../types'
 import { CharacterCard } from './CharacterCard'
 import { CharacterDetail } from './CharacterDetail'
+import { CreateCharacterCard } from './CreateCharacterCard'
 
 interface CharacterCarouselProps {
   characters: CharacterProfile[]
   onContinue: (character: CharacterProfile) => void
+  onCreate: () => void
   onBack: () => void
 }
 
-export function CharacterCarousel({ characters, onContinue, onBack }: CharacterCarouselProps) {
+type CarouselEntry =
+  | { kind: 'character'; character: CharacterProfile }
+  | { kind: 'create' }
+
+export function CharacterCarousel({ characters, onContinue, onCreate, onBack }: CharacterCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [detailCharacter, setDetailCharacter] = useState<CharacterProfile | null>(null)
 
-  const current = characters[currentIndex]
-  const previous = characters[(currentIndex - 1 + characters.length) % characters.length]
-  const next = characters[(currentIndex + 1) % characters.length]
+  const entries = useMemo<CarouselEntry[]>(
+    () => [
+      ...characters.map((character) => ({ kind: 'character' as const, character })),
+      { kind: 'create' as const },
+    ],
+    [characters],
+  )
+
+  const current = entries[currentIndex]
+  const previous = entries[(currentIndex - 1 + entries.length) % entries.length]
+  const next = entries[(currentIndex + 1) % entries.length]
 
   const movePrevious = () => {
-    setCurrentIndex((index) => (index - 1 + characters.length) % characters.length)
+    setCurrentIndex((index) => (index - 1 + entries.length) % entries.length)
   }
 
   const moveNext = () => {
-    setCurrentIndex((index) => (index + 1) % characters.length)
+    setCurrentIndex((index) => (index + 1) % entries.length)
   }
+
+  useEffect(() => {
+    if (currentIndex >= entries.length) setCurrentIndex(0)
+  }, [currentIndex, entries.length])
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -56,10 +74,38 @@ export function CharacterCarousel({ characters, onContinue, onBack }: CharacterC
 
     window.addEventListener('keydown', handleKeyDown, true)
     return () => window.removeEventListener('keydown', handleKeyDown, true)
-  }, [detailCharacter, onBack, characters.length])
+  }, [detailCharacter, onBack, entries.length])
 
-  if (characters.length < 3) {
-    return <div className="character-carousel__empty">至少需要三张人物卡</div>
+  const renderEntry = (
+    entry: CarouselEntry,
+    position: 'left' | 'center' | 'right',
+    selected: boolean,
+    onSelect: () => void,
+  ) => {
+    if (entry.kind === 'create') {
+      return (
+        <CreateCharacterCard
+          position={position}
+          selected={selected}
+          onCreate={onCreate}
+        />
+      )
+    }
+
+    return (
+      <CharacterCard
+        character={entry.character}
+        position={position}
+        selected={selected}
+        onSelect={onSelect}
+        onDetail={() => setDetailCharacter(entry.character)}
+        onContinue={() => onContinue(entry.character)}
+      />
+    )
+  }
+
+  if (entries.length < 3) {
+    return <div className="character-carousel__empty">至少需要两个预设人物</div>
   }
 
   return (
@@ -67,38 +113,15 @@ export function CharacterCarousel({ characters, onContinue, onBack }: CharacterC
       <button type="button" className="character-carousel__nav character-carousel__nav--left" onClick={movePrevious} aria-label="上一个人物">‹</button>
 
       <div className="character-carousel__cards">
-        <CharacterCard
-          character={previous}
-          position="left"
-          selected={false}
-          onSelect={movePrevious}
-          onDetail={() => setDetailCharacter(previous)}
-          onContinue={() => undefined}
-        />
-
-        <CharacterCard
-          character={current}
-          position="center"
-          selected
-          onSelect={() => undefined}
-          onDetail={() => setDetailCharacter(current)}
-          onContinue={() => onContinue(current)}
-        />
-
-        <CharacterCard
-          character={next}
-          position="right"
-          selected={false}
-          onSelect={moveNext}
-          onDetail={() => setDetailCharacter(next)}
-          onContinue={() => undefined}
-        />
+        {renderEntry(previous, 'left', false, movePrevious)}
+        {renderEntry(current, 'center', true, () => undefined)}
+        {renderEntry(next, 'right', false, moveNext)}
       </div>
 
       <button type="button" className="character-carousel__nav character-carousel__nav--right" onClick={moveNext} aria-label="下一个人物">›</button>
 
       <div className="character-carousel__position">
-        {String(currentIndex + 1).padStart(2, '0')} / {String(characters.length).padStart(2, '0')}
+        {String(currentIndex + 1).padStart(2, '0')} / {String(entries.length).padStart(2, '0')}
       </div>
 
       {detailCharacter && (
