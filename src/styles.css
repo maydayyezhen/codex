@@ -371,29 +371,35 @@ button:focus-visible {
 
 .module-carousel__zone {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 120px;
+  top: 50%;
+  width: 48px;
+  height: 64px;
+  padding: 0;
   border: 0;
   background: transparent;
   color: #3d3d3d;
   font-size: 44px;
   font-weight: 200;
+  line-height: 1;
   cursor: pointer;
-  transition: color .18s ease, background .18s ease;
+  transform: translateY(-50%);
+  transition: color .18s ease, transform .18s ease;
 }
 
 .module-carousel__zone:hover {
   color: var(--text-mid);
-  background: rgba(255, 255, 255, .015);
+}
+
+.module-carousel__zone:active {
+  transform: translateY(-50%) scale(.94);
 }
 
 .module-carousel__zone--left {
-  left: 0;
+  left: 28px;
 }
 
 .module-carousel__zone--right {
-  right: 0;
+  right: 28px;
 }
 
 .module-carousel__dots {
@@ -500,7 +506,16 @@ button:focus-visible {
   }
 
   .module-carousel__zone {
-    width: 44px;
+    width: 36px;
+    height: 52px;
     font-size: 30px;
+  }
+
+  .module-carousel__zone--left {
+    left: 8px;
+  }
+
+  .module-carousel__zone--right {
+    right: 8px;
   }
 }
