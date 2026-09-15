@@ -85,7 +85,7 @@ button:focus-visible {
   transform: translateX(6px);
 }
 
-/* Shared page shell: every secondary page uses the exact same header coordinates. */
+/* Shared page shell. The header is an overlay and never participates in content layout. */
 .page-shell {
   position: relative;
   width: 100%;
@@ -98,6 +98,7 @@ button:focus-visible {
   top: var(--page-y);
   left: var(--page-x);
   z-index: 10;
+  pointer-events: none;
 }
 
 .page-header__path {
@@ -115,9 +116,10 @@ button:focus-visible {
 }
 
 .page-shell__body {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  padding: 126px var(--page-x) 40px;
 }
 
 .primary-action {
@@ -140,6 +142,7 @@ button:focus-visible {
 /* Load game */
 .load-game-page {
   min-height: 0;
+  padding: 126px var(--page-x) 40px;
 }
 
 .load-game-layout {
@@ -268,7 +271,7 @@ button:focus-visible {
 
 /* New game */
 .new-game-page {
-  padding-bottom: 0;
+  padding: 0;
 }
 
 .module-carousel {
@@ -352,11 +355,11 @@ button:focus-visible {
 }
 
 .module-carousel__zone--left {
-  left: calc(var(--page-x) * -1);
+  left: 0;
 }
 
 .module-carousel__zone--right {
-  right: calc(var(--page-x) * -1);
+  right: 0;
 }
 
 .module-carousel__dots {
@@ -397,21 +400,20 @@ button:focus-visible {
     --page-y: 28px;
   }
 
-  .page-shell {
-    overflow-y: auto;
-  }
-
   .page-header__title {
     font-size: 24px;
   }
 
-  .page-shell__body {
+  .load-game-page {
+    overflow-y: auto;
     min-height: 100%;
-    height: auto;
-    padding-top: 110px;
+    height: 100%;
+    padding: 110px var(--page-x) 32px;
   }
 
   .load-game-layout {
+    height: auto;
+    min-height: 100%;
     display: flex;
     flex-direction: column;
   }
@@ -431,11 +433,10 @@ button:focus-visible {
 
   .new-game-page {
     height: 100%;
-    padding-bottom: 0;
   }
 
   .module-carousel {
-    min-height: calc(100vh - 110px);
+    min-height: 100%;
   }
 
   .module-card {
@@ -458,13 +459,5 @@ button:focus-visible {
   .module-carousel__zone {
     width: 44px;
     font-size: 30px;
-  }
-
-  .module-carousel__zone--left {
-    left: -24px;
-  }
-
-  .module-carousel__zone--right {
-    right: -24px;
   }
 }
