@@ -204,13 +204,13 @@ Conceptually:
 ┌─────────────────────────────────────────────────────────┐
 │ Header overlay                                          │
 │                                                         │
-│      save list              ┌──────────────────────┐    │
-│      01 ...                 │                      │    │
-│      02 ...                 │       preview        │    │
-│      03 ...                 │                      │    │
-│      04 ...                 └──────────────────────┘    │
-│      ...                                                │
-│                              save title        载入游戏 │
+│  ┌ fixed save browser ┐      ┌──────────────────────┐   │
+│  │ count / test tools │      │                      │   │
+│  │ 01 ...             │      │       preview        │   │
+│  │ 02 ...             │      │                      │   │
+│  │ 03 ...             │      └──────────────────────┘   │
+│  │ ... scroll ...     │                                 │
+│  └────────────────────┘      save title       载入游戏  │
 │                              location                   │
 │                              play time                  │
 │                              saved at                   │
@@ -223,7 +223,9 @@ Desktop layout behavior:
 
 - the entire load-game composition is centered in the viewport;
 - width is capped at 1200px;
-- the left column is compact and scrollable;
+- the left column occupies a fixed-height browser region within the composition;
+- the left browser has a persistent background color even when it contains only a few saves or no saves;
+- save entries scroll inside that fixed browser region rather than changing the page size;
 - the right column uses the full height of the load-game composition;
 - the right preview is anchored to the top of the right column;
 - the save information and primary action are anchored to the bottom of the right column;
@@ -244,17 +246,57 @@ SaveDetail
 
 This is implemented with a vertical flex container using `justify-content: space-between`.
 
-### 7.3 Save-list behavior
+### 7.3 Save browser behavior
+
+The left side is treated as one fixed visual region rather than a transparent list floating on the background.
+
+Its structure is:
+
+```text
+SaveBrowser
+├─ PrototypeToolbar
+└─ SaveList            ← scroll container
+```
+
+The background belongs to the browser/list region itself, so its geometry remains visible regardless of how many saves are present.
 
 Each save entry contains compact identifying information rather than a long narrative summary.
 
 The selected entry is visually emphasized.
 
-When the list exceeds the available height, the list itself scrolls instead of growing the page indefinitely.
+When the list exceeds the available height, only `SaveList` scrolls.
 
-### 7.4 Mobile behavior
+When keyboard navigation or a newly created test save selects an item outside the current viewport, the selected entry is automatically scrolled into view using nearest-edge behavior.
+
+The empty-list state is supported and keeps the browser geometry intact.
+
+### 7.4 Prototype save stress-test controls
+
+The current prototype intentionally includes temporary controls in the fixed save browser:
+
+- `新增存档` appends generated mock save data and selects the new record;
+- `删除选中` removes the current record and moves selection to a neighboring record;
+- all saves can be deleted, producing a valid empty state;
+- the displayed save count updates dynamically.
+
+These controls exist specifically to stress-test layout behavior with different save counts. They are **prototype/development controls**, not a final production interaction decision.
+
+They are useful for validating:
+
+- fixed browser height;
+- scrolling behavior with many records;
+- empty and near-empty states;
+- selected-state stability after deletion;
+- right-side detail behavior when no save exists;
+- text overflow and spacing under changing data volume.
+
+If these controls are removed later, the fixed-browser and dynamic-list behavior should remain.
+
+### 7.5 Mobile behavior
 
 On narrow screens the master/detail layout becomes vertical.
+
+The save browser receives an explicit mobile height so that its fixed-background/scroll behavior can still be tested independently from the detail section.
 
 The desktop top/bottom anchoring rule is relaxed on mobile: `SaveDetail` becomes normal-height content with an explicit gap between preview and details so that the vertical stack remains readable.
 
@@ -307,7 +349,11 @@ Responsible for:
 
 ### `SaveList`
 
-Responsible for compact save selection.
+Responsible for:
+
+- compact save selection;
+- the empty-list state;
+- keeping the currently selected item visible inside the scroll viewport.
 
 ### `SaveDetail`
 
@@ -316,7 +362,12 @@ Responsible for:
 - the selected save preview placeholder;
 - selected-save metadata;
 - the load action;
+- the no-selection/empty-list detail state;
 - keeping the preview anchored to the top and the detail/action group anchored to the bottom on desktop.
+
+### `LoadGamePage`
+
+Currently also owns the prototype-only dynamic save collection used for layout stress testing.
 
 ### `App`
 
@@ -348,6 +399,9 @@ Whenever UI work is changed, check the following:
 - Is there any visible back button? If yes, remove it unless the navigation design was explicitly changed.
 - Does `Esc` still return from secondary pages?
 - Are keyboard controls preserved?
+- Does the save browser keep its fixed geometry when save count changes?
+- Does the selected save remain visible when navigating a long list?
+- Does deleting all saves produce a valid empty state?
 - Did a reusable layout pattern get duplicated instead of componentized?
 - Does this document still describe the actual implementation?
 
