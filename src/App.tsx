@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { MainMenu } from './components/MainMenu'
 import { LoadGamePage } from './pages/LoadGamePage'
 import { NewGamePage } from './pages/NewGamePage'
+import { SettingsPage } from './pages/SettingsPage'
 import type { Screen } from './types'
 
 export default function App() {
@@ -21,12 +22,14 @@ export default function App() {
 
   if (screen === 'new-game') return <NewGamePage />
   if (screen === 'load-game') return <LoadGamePage />
+  if (screen === 'settings') return <SettingsPage />
 
   return (
     <MainMenu
       onContinue={() => undefined}
       onNewGame={() => setScreen('new-game')}
       onLoadGame={() => setScreen('load-game')}
+      onSettings={() => setScreen('settings')}
     />
   )
 }
