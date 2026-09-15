@@ -1,22 +1,24 @@
 # LORE UI Design Specification
 
-This document records the current UI structure, interaction rules, component boundaries, and visual/layout decisions for the LORE project.
+This document records the current UI structure, interaction rules, component boundaries, and layout decisions for the LORE project.
 
-> Maintenance rule: every change to page layout, navigation behavior, interaction semantics, shared components, or visual hierarchy must update this document in the same change.
+> Maintenance rule: every change to page layout, navigation behavior, interaction semantics, shared components, visual hierarchy, or canonical media presentation must update the relevant documentation in the same change.
+
+Image-production rules are canonical in [`IMAGE_ASSETS.md`](./IMAGE_ASSETS.md). Individual pages must not invent their own image ratios.
 
 ## 1. Product direction
 
 LORE is a narrative TRPG-style game UI. The interface should feel like a game rather than a web dashboard.
 
-Current design priorities:
+Current principles:
 
 - restrained, minimal interface;
-- strong use of typography, spacing, hierarchy, and negative space;
-- no decorative UI added merely to make the page feel more game-like;
-- avoid card-dashboard layouts unless the information model truly needs cards;
-- secondary-page titles behave like an overlay/HUD layer, not like document-flow content;
+- typography, spacing, hierarchy, and negative space do most of the visual work;
+- avoid decorative UI added only to make the page feel more game-like;
+- avoid dashboard/card-grid patterns unless the information model actually needs them;
+- secondary-page titles are overlay/HUD elements, not document-flow content;
 - keyboard interaction is first-class;
-- no visible back button in secondary pages.
+- secondary pages do not render visible back buttons.
 
 ## 2. Technology and project structure
 
@@ -25,7 +27,7 @@ Stack:
 - React
 - Vite
 - TypeScript
-- plain CSS for the current prototype
+- plain CSS
 
 Current structure includes:
 
@@ -56,6 +58,7 @@ src/
 ├─ character-create.css
 ├─ character.css
 ├─ main.tsx
+├─ media.css
 ├─ settings.css
 ├─ styles.css
 └─ types.ts
@@ -77,7 +80,7 @@ Primary entries:
 
 The title is `LORE`.
 
-`设置` is a secondary system entry placed separately at the lower-left of the main menu screen.
+`设置` is a secondary system action placed separately at the lower-left of the title screen rather than in the primary action stack.
 
 ### 3.2 Secondary pages
 
@@ -89,36 +92,27 @@ PageShell
 └─ PageBody
 ```
 
-`PageHeader` is an overlay layer. It is absolutely positioned using shared coordinates and does **not** reserve or consume layout space.
+`PageHeader` is absolutely positioned and does **not** reserve layout space.
 
-The page content layer always receives the full viewport. Each page decides its own internal composition independently of the title.
-
-## 4. Shared title design
-
-Component: `PageHeader.tsx`
-
-Shared CSS coordinates:
-
-- horizontal position: `--page-x`
-- vertical position: `--page-y`
+The page body always receives the full viewport. Each page independently decides where its main composition sits.
 
 Rules:
 
-- title position remains consistent across secondary pages;
-- pages do not redefine the global title position;
-- title must not push page content downward;
-- title is non-interactive and uses `pointer-events: none`;
-- title overlap is solved inside the page composition, never by restoring shared header spacing.
+- global title coordinates are shared;
+- pages do not push their content down merely to make room for the title;
+- if content visually conflicts with the title, fix that page composition rather than changing the shell rule;
+- `PageHeader` is non-interactive.
 
-## 5. Navigation and keyboard behavior
+## 4. Navigation model
 
-Current behavior:
+There is no visible back button.
 
-- there is no visible back button;
-- module selection supports `ArrowLeft` / `ArrowRight`;
-- load-game save selection supports `ArrowUp` / `ArrowDown`;
-- settings uses `ArrowUp` / `ArrowDown` to select rows and `ArrowLeft` / `ArrowRight` to modify values;
-- character selection supports `ArrowLeft` / `ArrowRight`.
+Current keyboard behavior:
+
+- module selection: `ArrowLeft` / `ArrowRight`;
+- character selection: `ArrowLeft` / `ArrowRight`;
+- load-game selection: `ArrowUp` / `ArrowDown`;
+- settings: `ArrowUp` / `ArrowDown` select rows, `ArrowLeft` / `ArrowRight` change values.
 
 `Esc` follows navigation depth:
 
@@ -136,21 +130,22 @@ Module selection / Load game / Settings
   Esc → main menu
 ```
 
-Deeper flows should preserve this layered/page-stack behavior instead of jumping directly to the main menu.
+Deeper flows should preserve this layered/page-stack behavior rather than jumping directly to the main menu.
 
-### 5.1 Carousel arrow interaction rule
+## 5. Shared carousel-control rule
 
-All left/right carousel controls use compact arrow buttons rather than full-height side hit zones.
+All left/right carousels use compact arrow buttons.
 
 Rules:
 
 - hover feedback belongs only to the arrow button itself;
-- surrounding left/right screen areas do not react to hover;
-- no large translucent side background is shown;
-- clicking works only within the compact arrow button hit target;
-- keyboard left/right navigation remains available independently of mouse hit-target size.
+- the surrounding left/right side of the screen does not react;
+- there is no full-height invisible side hit zone;
+- there is no large translucent hover background;
+- clicks are accepted only inside the compact arrow hit target;
+- keyboard navigation remains available regardless of mouse hit-target size.
 
-This rule applies to module selection and character selection and should be reused by future carousels.
+This currently applies to module selection and character selection and should be reused by future carousels.
 
 ## 6. New Game / module selection
 
@@ -158,18 +153,23 @@ Page: `NewGamePage.tsx`
 
 Primary component: `ModuleCarousel.tsx`
 
-The page uses a full-screen carousel. The active module occupies the visual center of the full viewport and displays:
+The page uses a full-screen carousel with one active module at a time.
+
+Displayed information:
 
 - current position;
 - module title;
 - tags;
 - short hook;
 - description;
-- primary action: `继续`.
+- `继续`.
 
-The left/right controls do not display adjacent module names and follow the shared compact-arrow rule.
+Rules:
 
-`继续` confirms the current module and enters character selection.
+- adjacent module names are not displayed beside the arrows;
+- carousel arrows follow the shared compact-control rule;
+- `继续` confirms the module and enters character selection;
+- the carousel is centered against the full viewport, not the space below the page title.
 
 Current flow:
 
@@ -181,7 +181,7 @@ Module selection
 Character selection
 ```
 
-The module-specific character pool is not yet implemented; the current prototype uses one shared character dataset.
+Module-specific character pools are not implemented yet; the prototype currently uses one shared character dataset.
 
 ## 7. Character selection
 
@@ -198,22 +198,11 @@ Styles:
 
 - `character.css`
 - `character-create.css`
+- canonical portrait/card geometry in `media.css`
 
-### 7.1 Design goal
+### 7.1 Three-slot carousel
 
-The first character-selection layer is visual and low-density. It answers one question: **who does the player want to play?**
-
-A normal character card initially shows only:
-
-- avatar/portrait area;
-- character name;
-- occupation.
-
-The current prototype uses typographic avatar placeholders. Production portraits should replace the placeholder area without changing card geometry.
-
-### 7.2 Three-slot carousel
-
-Exactly three slots are visible at once:
+Exactly three slots are visible:
 
 ```text
 previous        selected/current        next
@@ -221,72 +210,69 @@ previous        selected/current        next
 
 Rules:
 
-- the center slot is the current carousel position;
-- left/right slots show adjacent entries;
+- the center slot is the current selection;
+- side slots show adjacent entries;
 - the carousel loops continuously;
-- clicking a normal side character moves it to the center;
-- arrow buttons and keyboard `ArrowLeft` / `ArrowRight` rotate the carousel;
-- side cards are smaller/dimmer than the center card;
-- arrows use compact hit targets and only the icon/button itself reacts visually to hover.
+- side normal characters can be clicked to move them to the center;
+- arrow buttons and keyboard arrows rotate the carousel;
+- side cards are smaller/dimmer than the selected center slot;
+- the final create-character card participates in the same loop and position count.
 
-The carousel entry count includes both normal character cards and the final create-character card.
+### 7.2 Normal character card
 
-### 7.3 Normal character-card interaction
+The compact selection layer shows only:
+
+- portrait;
+- name;
+- occupation.
+
+Interaction states:
 
 **Default**
 
-- avatar;
-- name;
-- occupation;
+- portrait, name, occupation;
 - no detail action visible.
 
 **Hover**
 
-- only while the mouse is over that card, `详情` fades into the card's upper-right corner;
-- moving the pointer away hides `详情` immediately;
+- `详情` appears only while the mouse is over that specific card;
+- moving the pointer away immediately hides it;
 - selection alone does not keep `详情` visible.
 
 **Selected**
 
-- the center normal character card is visually emphasized;
-- only the selected normal character card shows `继续` inside the card.
+- the center normal character is emphasized;
+- only the selected normal character shows `继续` inside its own card.
 
-Interaction semantics:
+Semantics:
 
-- clicking card body = select/center that character;
-- clicking `详情` = open that character's full sheet without changing pages;
-- clicking `继续` = confirm the selected character and advance to the next game-flow stage.
+- card body = select/center;
+- `详情` = open that character's detail overlay;
+- `继续` = confirm the selected character.
 
-The post-character gameplay stage is not implemented yet.
+### 7.3 Create-character card
 
-### 7.4 Create-character card
+A special `创建新人物` card is always appended after predefined character entries.
 
-A special `创建新人物` card is appended **after all predefined character entries**.
+It is a dedicated component, not fake `CharacterProfile` data.
 
-It is not represented as fake `CharacterProfile` data. It is a dedicated carousel entry/component.
+Rules:
 
-Visual rules:
+- whole card is the create action;
+- displays `＋` and `创建新人物`;
+- no occupation;
+- no `详情`;
+- no `继续`;
+- participates in the same three-slot carousel, loop, scale/dim behavior, arrows, and position count;
+- clicking it enters character creation even when it is currently a side slot.
 
-- the whole card is a create action;
-- it displays a large `＋` and `创建新人物`;
-- it has no occupation;
-- it has no `详情` action;
-- it has no `继续` action;
-- it participates in the same three-slot carousel, scaling, dimming, looping, position count, and left/right navigation as normal character entries.
+### 7.4 Character detail
 
-Interaction rule:
+`详情` opens an overlay without replacing the selection page.
 
-- clicking the create-character card immediately enters the character-creation flow, regardless of whether that card is currently in the left, center, or right slot.
+Current detail content:
 
-The current character-creation page is intentionally only a placeholder. Its form/layout will be designed separately.
-
-### 7.5 Character detail overlay
-
-`详情` opens an overlay above character selection instead of navigating to a new page.
-
-The detail layer currently contains:
-
-- larger portrait placeholder;
+- larger portrait;
 - name;
 - occupation;
 - age;
@@ -294,18 +280,15 @@ The detail layer currently contains:
 - strengths;
 - weaknesses.
 
-Closing details returns the player to the exact same carousel position. `Esc` closes the detail overlay before page-level navigation occurs.
+Closing the overlay preserves the exact carousel position.
 
-### 7.6 Character creation placeholder
+### 7.5 Character creation
 
 Page: `CharacterCreatePage.tsx`
 
-Current behavior:
+Current state is intentionally a placeholder. The real creation form is not designed yet.
 
-- entered from the final `创建新人物` carousel card;
-- uses the shared page header with title `创建人物`;
-- currently contains only a minimal placeholder because the creation form has not yet been designed;
-- `Esc` returns to character selection.
+`Esc` returns to character selection.
 
 ## 8. Load Game
 
@@ -316,20 +299,20 @@ Components:
 - `SaveList.tsx`
 - `SaveDetail.tsx`
 
-The load screen follows a master/detail pattern:
+The load screen follows a master/detail layout:
 
 - left: compact textual save list;
-- right: selected save preview and details.
+- right: selected save preview and metadata.
 
-Layout rules:
+Rules:
 
-- composition centered in the viewport and capped at 1200px;
-- left side is a fixed-height browser with persistent background;
-- save entries scroll internally instead of changing page geometry;
-- right preview is anchored at the top;
-- save metadata and load action are anchored at the bottom;
-- flexible vertical space separates preview and details;
-- preview is currently an empty 16:9 placeholder.
+- composition is centered and capped at 1200px;
+- the left save browser has fixed geometry and persistent background;
+- long save lists scroll internally rather than expanding the page;
+- the right preview is anchored at the top;
+- metadata and `载入游戏` are anchored at the bottom;
+- flexible vertical space separates preview from details;
+- save preview uses the canonical 16:9 asset ratio.
 
 ## 9. Settings
 
@@ -337,16 +320,47 @@ Page: `SettingsPage.tsx`
 
 Styles: `settings.css`
 
-The current settings page contains only:
+Current settings intentionally contain only:
 
-- DM Agent selection (`ChatGPT` / `DeepSeek`);
+- DM Agent: `ChatGPT` / `DeepSeek`;
 - 主音量;
 - 音乐音量;
 - 音效音量.
 
-Settings are immediate and persist automatically in `localStorage`. There is no Apply/Save button.
+Rules:
 
-## 10. Visual language
+- no category tabs yet;
+- DM Agent uses a left/right discrete selector rather than a dropdown;
+- audio uses 0–100 sliders;
+- keyboard audio adjustment uses 5-point steps;
+- settings persist automatically in `localStorage`;
+- no Apply/Save button;
+- current audio values are UI state only until a real audio engine is connected.
+
+## 10. Image asset system
+
+Canonical image production rules live in [`IMAGE_ASSETS.md`](./IMAGE_ASSETS.md).
+
+Current canonical ratios are:
+
+| Asset | Ratio |
+| --- | --- |
+| Save screenshot | 16:9 |
+| Module key art | 16:10 |
+| Character portrait | 3:4 |
+
+Implementation rules:
+
+- ratios are defined centrally in `src/media.css`;
+- individual pages/components must not redefine canonical image ratios;
+- real images use cover-style fitting unless a context explicitly requires full uncropped display;
+- character selection and detail reuse the same 3:4 portrait source;
+- the character-card container itself is currently 3:5 because it also contains name, occupation, and contextual actions;
+- module artwork is not rendered yet, but its 16:10 ratio is already reserved for future use.
+
+Any change to these values must update both `media.css` and `IMAGE_ASSETS.md` in the same change.
+
+## 11. Visual language
 
 Current palette is neutral and provisional:
 
@@ -356,13 +370,13 @@ Current palette is neutral and provisional:
 - restrained borders;
 - no decorative textures or imagery required by the prototype.
 
-The design relies primarily on typography, spacing, alignment, contrast, motion, and information hierarchy.
+The interface primarily relies on typography, spacing, alignment, contrast, motion, and information hierarchy.
 
-## 11. Component responsibilities
+## 12. Component responsibilities
 
 ### `PageShell`
 
-Establishes the full-screen secondary-page coordinate system, renders the shared header overlay, and provides a full-screen body canvas.
+Establishes the full-screen secondary-page coordinate system, shared title overlay, and full-screen body canvas.
 
 ### `ModuleCarousel`
 
@@ -370,15 +384,15 @@ Owns module browsing and module confirmation.
 
 ### `CharacterCarousel`
 
-Owns the current carousel index, three-slot looping behavior, mixed normal/create entries, keyboard rotation, detail-overlay state, and character-flow back behavior.
+Owns current carousel index, three-slot looping, mixed normal/create entries, keyboard rotation, detail-overlay state, and character-flow back behavior.
 
 ### `CharacterCard`
 
-Owns one normal character's compact visual representation and local hover/selected actions.
+Owns one normal character's compact selection card and local hover/selected actions.
 
 ### `CreateCharacterCard`
 
-Owns the special final carousel entry that launches character creation.
+Owns the final special card that launches character creation.
 
 ### `CharacterDetail`
 
@@ -386,42 +400,47 @@ Owns the expanded character-sheet overlay.
 
 ### `CharacterCreatePage`
 
-Currently provides the placeholder destination for the create-character action. The actual form is not yet designed.
+Currently provides the placeholder destination for the create-character action.
 
 ### `SaveList` / `SaveDetail`
 
-Own save selection and selected-save presentation respectively.
+Own save selection and selected-save presentation.
 
 ### `SettingsPage`
 
 Owns DM Agent selection, audio values, keyboard control, and local persistence.
 
+### `media.css`
+
+Owns canonical media aspect-ratio tokens and shared image-fitting geometry.
+
 ### `App`
 
 Owns top-level screen selection and shallow navigation transitions.
 
-## 12. Current non-goals
+## 13. Current non-goals
 
 The current prototype does not yet define:
 
 - final art direction or fonts;
 - production character portraits;
+- production module artwork;
 - production save screenshots;
 - backend/API integration;
 - module-specific character pools;
 - actual audio-engine binding;
 - DM Agent backend/provider initialization;
 - persistent router architecture;
-- the actual character-creation form;
+- actual character-creation form;
 - the stage after character confirmation;
 - final animation timing system;
 - game-session screen.
 
-## 13. Change checklist
+## 14. Change checklist
 
 Whenever UI work changes, verify:
 
-- Does the page still look like a game interface rather than a dashboard?
+- Does the page still feel like a game interface rather than a dashboard?
 - Does `PageHeader` remain independent from page-body layout?
 - Are titles aligned consistently?
 - Is there any visible back button? If yes, remove it unless navigation is explicitly redesigned.
@@ -435,7 +454,6 @@ Whenever UI work changes, verify:
 - Does closing character detail preserve carousel selection?
 - Does the save browser keep fixed geometry and internal scrolling?
 - Are settings immediate and free of Apply/Save buttons?
+- Are canonical image ratios still sourced from `media.css` / `IMAGE_ASSETS.md` rather than page-specific CSS?
 - Did reusable behavior get duplicated instead of componentized?
 - Does this document still match the implementation?
-
-If any answer changes, update this document together with the code.
