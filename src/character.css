@@ -111,8 +111,7 @@
   transform: translateY(-3px);
 }
 
-.character-card:hover .character-card__detail,
-.character-card:focus-within .character-card__detail {
+.character-card:hover .character-card__detail {
   opacity: 1;
   pointer-events: auto;
   transform: translateY(0);
