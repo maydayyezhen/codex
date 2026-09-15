@@ -35,6 +35,7 @@ src/
 │  ├─ CharacterCard.tsx
 │  ├─ CharacterCarousel.tsx
 │  ├─ CharacterDetail.tsx
+│  ├─ CreateCharacterCard.tsx
 │  ├─ MainMenu.tsx
 │  ├─ ModuleCarousel.tsx
 │  ├─ PageHeader.tsx
@@ -46,11 +47,13 @@ src/
 │  ├─ modules.ts
 │  └─ saves.ts
 ├─ pages/
+│  ├─ CharacterCreatePage.tsx
 │  ├─ CharacterSelectPage.tsx
 │  ├─ LoadGamePage.tsx
 │  ├─ NewGamePage.tsx
 │  └─ SettingsPage.tsx
 ├─ App.tsx
+├─ character-create.css
 ├─ character.css
 ├─ main.tsx
 ├─ settings.css
@@ -117,11 +120,14 @@ Current behavior:
 - settings uses `ArrowUp` / `ArrowDown` to select rows and `ArrowLeft` / `ArrowRight` to modify values;
 - character selection supports `ArrowLeft` / `ArrowRight`.
 
-`Esc` now follows navigation depth rather than always returning directly to the main menu:
+`Esc` follows navigation depth:
 
 ```text
 Character detail overlay
   Esc → close detail
+
+Character creation
+  Esc → character selection
 
 Character selection
   Esc → module selection
@@ -130,7 +136,7 @@ Module selection / Load game / Settings
   Esc → main menu
 ```
 
-This is the beginning of a layered/page-stack navigation model. Deeper flows should preserve this behavior rather than jumping directly to the main menu.
+Deeper flows should preserve this layered/page-stack behavior instead of jumping directly to the main menu.
 
 ### 5.1 Carousel arrow interaction rule
 
@@ -139,12 +145,12 @@ All left/right carousel controls use compact arrow buttons rather than full-heig
 Rules:
 
 - hover feedback belongs only to the arrow button itself;
-- moving the pointer over the surrounding left/right side of the screen must not trigger hover styling;
-- the arrow control does not render a large translucent side background on hover;
+- surrounding left/right screen areas do not react to hover;
+- no large translucent side background is shown;
 - clicking works only within the compact arrow button hit target;
 - keyboard left/right navigation remains available independently of mouse hit-target size.
 
-This rule currently applies to both module selection and character selection and should be reused by future carousels.
+This rule applies to module selection and character selection and should be reused by future carousels.
 
 ## 6. New Game / module selection
 
@@ -152,17 +158,7 @@ Page: `NewGamePage.tsx`
 
 Primary component: `ModuleCarousel.tsx`
 
-### 6.1 Design goal
-
-Module selection should feel like browsing worlds/stories rather than choosing a row from a management interface.
-
-The page uses a full-screen carousel.
-
-### 6.2 Composition
-
-The active module occupies the visual center of the full viewport.
-
-Displayed information:
+The page uses a full-screen carousel. The active module occupies the visual center of the full viewport and displays:
 
 - current position;
 - module title;
@@ -171,11 +167,7 @@ Displayed information:
 - description;
 - primary action: `继续`.
 
-The left/right switch controls do not display adjacent module names.
-
-The left/right controls follow the shared compact-arrow interaction rule: only the arrow itself has hover feedback and click behavior.
-
-### 6.3 Continue behavior
+The left/right controls do not display adjacent module names and follow the shared compact-arrow rule.
 
 `继续` confirms the current module and enters character selection.
 
@@ -199,27 +191,29 @@ Components:
 
 - `CharacterCarousel.tsx`
 - `CharacterCard.tsx`
+- `CreateCharacterCard.tsx`
 - `CharacterDetail.tsx`
 
-Styles: `character.css`
+Styles:
+
+- `character.css`
+- `character-create.css`
 
 ### 7.1 Design goal
 
-The first character-selection layer is intentionally visual and low-density. It answers one question: **who does the player want to play?**
+The first character-selection layer is visual and low-density. It answers one question: **who does the player want to play?**
 
-The default card must not expose the full character sheet.
-
-Each visible character card initially shows only:
+A normal character card initially shows only:
 
 - avatar/portrait area;
 - character name;
 - occupation.
 
-The current prototype uses typographic avatar placeholders because final portrait assets do not exist yet. Production portraits should replace the placeholder area without changing card geometry.
+The current prototype uses typographic avatar placeholders. Production portraits should replace the placeholder area without changing card geometry.
 
 ### 7.2 Three-slot carousel
 
-Exactly three character cards are visible at once:
+Exactly three slots are visible at once:
 
 ```text
 previous        selected/current        next
@@ -227,19 +221,17 @@ previous        selected/current        next
 
 Rules:
 
-- the center card is always the selected character;
-- left/right cards show the adjacent characters;
+- the center slot is the current carousel position;
+- left/right slots show adjacent entries;
 - the carousel loops continuously;
-- clicking a side card moves it to the center;
-- arrow buttons and keyboard `ArrowLeft` / `ArrowRight` also rotate the carousel;
-- side cards are smaller/dimmer than the selected center card;
-- the left/right arrows use compact hit targets and only the arrow itself responds visually to hover.
+- clicking a normal side character moves it to the center;
+- arrow buttons and keyboard `ArrowLeft` / `ArrowRight` rotate the carousel;
+- side cards are smaller/dimmer than the center card;
+- arrows use compact hit targets and only the icon/button itself reacts visually to hover.
 
-With five characters `A B C D E`, if `C` is selected the view is `B C D`; moving right produces `C D E`, then `D E A`.
+The carousel entry count includes both normal character cards and the final create-character card.
 
-### 7.3 Card interaction states
-
-A character card has three interaction concepts:
+### 7.3 Normal character-card interaction
 
 **Default**
 
@@ -252,25 +244,45 @@ A character card has three interaction concepts:
 
 - only while the mouse is over that card, `详情` fades into the card's upper-right corner;
 - moving the pointer away hides `详情` immediately;
-- selection alone must **not** make `详情` permanently visible.
+- selection alone does not keep `详情` visible.
 
 **Selected**
 
-- the center card is visually emphasized;
-- only the selected card shows `继续` inside the card;
-- `继续` belongs to the selected card rather than to a detached page-level action area.
+- the center normal character card is visually emphasized;
+- only the selected normal character card shows `继续` inside the card.
 
 Interaction semantics:
 
 - clicking card body = select/center that character;
-- clicking `详情` = open that specific character's full sheet without changing pages;
+- clicking `详情` = open that character's full sheet without changing pages;
 - clicking `继续` = confirm the selected character and advance to the next game-flow stage.
 
-The post-character stage is not implemented yet, so `继续` currently stops at this prototype boundary.
+The post-character gameplay stage is not implemented yet.
 
-### 7.4 Character detail overlay
+### 7.4 Create-character card
 
-`详情` opens an overlay above the character-selection page instead of navigating to a new page.
+A special `创建新人物` card is appended **after all predefined character entries**.
+
+It is not represented as fake `CharacterProfile` data. It is a dedicated carousel entry/component.
+
+Visual rules:
+
+- the whole card is a create action;
+- it displays a large `＋` and `创建新人物`;
+- it has no occupation;
+- it has no `详情` action;
+- it has no `继续` action;
+- it participates in the same three-slot carousel, scaling, dimming, looping, position count, and left/right navigation as normal character entries.
+
+Interaction rule:
+
+- clicking the create-character card immediately enters the character-creation flow, regardless of whether that card is currently in the left, center, or right slot.
+
+The current character-creation page is intentionally only a placeholder. Its form/layout will be designed separately.
+
+### 7.5 Character detail overlay
+
+`详情` opens an overlay above character selection instead of navigating to a new page.
 
 The detail layer currently contains:
 
@@ -282,9 +294,18 @@ The detail layer currently contains:
 - strengths;
 - weaknesses.
 
-The character-selection state remains underneath the overlay, so closing details returns the player to the exact same carousel position.
+Closing details returns the player to the exact same carousel position. `Esc` closes the detail overlay before page-level navigation occurs.
 
-`Esc` closes the detail overlay before any page-level navigation occurs.
+### 7.6 Character creation placeholder
+
+Page: `CharacterCreatePage.tsx`
+
+Current behavior:
+
+- entered from the final `创建新人物` carousel card;
+- uses the shared page header with title `创建人物`;
+- currently contains only a minimal placeholder because the creation form has not yet been designed;
+- `Esc` returns to character selection.
 
 ## 8. Load Game
 
@@ -295,26 +316,20 @@ Components:
 - `SaveList.tsx`
 - `SaveDetail.tsx`
 
-### 8.1 Design goal
-
-The load screen follows a game-save master/detail pattern:
+The load screen follows a master/detail pattern:
 
 - left: compact textual save list;
 - right: selected save preview and details.
 
-It avoids dashboard-style save cards.
+Layout rules:
 
-### 8.2 Layout rules
-
-- the composition is centered in the viewport and capped at 1200px;
-- the left side is a fixed-height save browser with a persistent background;
-- save entries scroll inside the browser instead of changing page geometry;
-- the right preview is anchored at the top;
-- save metadata and the load action are anchored at the bottom;
+- composition centered in the viewport and capped at 1200px;
+- left side is a fixed-height browser with persistent background;
+- save entries scroll internally instead of changing page geometry;
+- right preview is anchored at the top;
+- save metadata and load action are anchored at the bottom;
 - flexible vertical space separates preview and details;
-- the current preview is an empty 16:9 placeholder.
-
-The temporary add/delete/count stress-test controls have been removed.
+- preview is currently an empty 16:9 placeholder.
 
 ## 9. Settings
 
@@ -322,35 +337,14 @@ Page: `SettingsPage.tsx`
 
 Styles: `settings.css`
 
-### 9.1 Scope
+The current settings page contains only:
 
-The current settings page intentionally contains only:
-
-- DM Agent selection;
-- audio levels.
-
-There is no tab bar because the settings set is small.
-
-### 9.2 DM Agent
-
-Available values:
-
-- `ChatGPT`
-- `DeepSeek`
-
-The setting uses a left/right selector and is persisted in `localStorage` under `lore.dmAgent`.
-
-### 9.3 Audio
-
-Current values:
-
+- DM Agent selection (`ChatGPT` / `DeepSeek`);
 - 主音量;
 - 音乐音量;
 - 音效音量.
 
-Values are 0–100 sliders and persist automatically in `localStorage`.
-
-There is no Apply/Save button. Changes are immediate from the UI perspective; actual audio-engine binding is a future integration task.
+Settings are immediate and persist automatically in `localStorage`. There is no Apply/Save button.
 
 ## 10. Visual language
 
@@ -376,15 +370,23 @@ Owns module browsing and module confirmation.
 
 ### `CharacterCarousel`
 
-Owns the selected-character index, three-slot looping behavior, keyboard rotation, detail-overlay state, and character-flow back behavior.
+Owns the current carousel index, three-slot looping behavior, mixed normal/create entries, keyboard rotation, detail-overlay state, and character-flow back behavior.
 
 ### `CharacterCard`
 
-Owns one character's compact visual representation and local hover/selected actions.
+Owns one normal character's compact visual representation and local hover/selected actions.
+
+### `CreateCharacterCard`
+
+Owns the special final carousel entry that launches character creation.
 
 ### `CharacterDetail`
 
 Owns the expanded character-sheet overlay.
+
+### `CharacterCreatePage`
+
+Currently provides the placeholder destination for the create-character action. The actual form is not yet designed.
 
 ### `SaveList` / `SaveDetail`
 
@@ -396,7 +398,7 @@ Owns DM Agent selection, audio values, keyboard control, and local persistence.
 
 ### `App`
 
-Owns top-level screen selection. Global `Esc` handles shallow secondary pages, while character selection handles its deeper nested navigation locally.
+Owns top-level screen selection and shallow navigation transitions.
 
 ## 12. Current non-goals
 
@@ -410,6 +412,7 @@ The current prototype does not yet define:
 - actual audio-engine binding;
 - DM Agent backend/provider initialization;
 - persistent router architecture;
+- the actual character-creation form;
 - the stage after character confirmation;
 - final animation timing system;
 - game-session screen.
@@ -422,12 +425,13 @@ Whenever UI work changes, verify:
 - Does `PageHeader` remain independent from page-body layout?
 - Are titles aligned consistently?
 - Is there any visible back button? If yes, remove it unless navigation is explicitly redesigned.
-- Does `Esc` follow the correct depth rather than unexpectedly jumping screens?
+- Does `Esc` follow the correct depth?
 - Are keyboard controls preserved?
-- Do carousel arrows respond only on their compact icon/button area rather than full side regions?
-- Does the character selector still show exactly three slots?
-- Is `详情` hidden unless its card is hovered?
-- Is `继续` only visible inside the selected character card?
+- Do carousel arrows respond only on their compact icon/button area?
+- Does character selection still show exactly three slots?
+- Is `详情` hidden unless its normal character card is hovered?
+- Is `继续` only visible inside the selected normal character card?
+- Is the create-character card always the final carousel entry and free of detail/continue controls?
 - Does closing character detail preserve carousel selection?
 - Does the save browser keep fixed geometry and internal scrolling?
 - Are settings immediate and free of Apply/Save buttons?
