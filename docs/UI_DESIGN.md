@@ -132,6 +132,20 @@ Module selection / Load game / Settings
 
 This is the beginning of a layered/page-stack navigation model. Deeper flows should preserve this behavior rather than jumping directly to the main menu.
 
+### 5.1 Carousel arrow interaction rule
+
+All left/right carousel controls use compact arrow buttons rather than full-height side hit zones.
+
+Rules:
+
+- hover feedback belongs only to the arrow button itself;
+- moving the pointer over the surrounding left/right side of the screen must not trigger hover styling;
+- the arrow control does not render a large translucent side background on hover;
+- clicking works only within the compact arrow button hit target;
+- keyboard left/right navigation remains available independently of mouse hit-target size.
+
+This rule currently applies to both module selection and character selection and should be reused by future carousels.
+
 ## 6. New Game / module selection
 
 Page: `NewGamePage.tsx`
@@ -158,6 +172,8 @@ Displayed information:
 - primary action: `继续`.
 
 The left/right switch controls do not display adjacent module names.
+
+The left/right controls follow the shared compact-arrow interaction rule: only the arrow itself has hover feedback and click behavior.
 
 ### 6.3 Continue behavior
 
@@ -216,7 +232,8 @@ Rules:
 - the carousel loops continuously;
 - clicking a side card moves it to the center;
 - arrow buttons and keyboard `ArrowLeft` / `ArrowRight` also rotate the carousel;
-- side cards are smaller/dimmer than the selected center card.
+- side cards are smaller/dimmer than the selected center card;
+- the left/right arrows use compact hit targets and only the arrow itself responds visually to hover.
 
 With five characters `A B C D E`, if `C` is selected the view is `B C D`; moving right produces `C D E`, then `D E A`.
 
@@ -407,6 +424,7 @@ Whenever UI work changes, verify:
 - Is there any visible back button? If yes, remove it unless navigation is explicitly redesigned.
 - Does `Esc` follow the correct depth rather than unexpectedly jumping screens?
 - Are keyboard controls preserved?
+- Do carousel arrows respond only on their compact icon/button area rather than full side regions?
 - Does the character selector still show exactly three slots?
 - Is `详情` hidden unless its card is hovered?
 - Is `继续` only visible inside the selected character card?
