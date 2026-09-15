@@ -5,6 +5,7 @@ import './styles.css'
 import './settings.css'
 import './character.css'
 import './character-create.css'
+import './media.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
