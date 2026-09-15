@@ -161,47 +161,11 @@ button:focus-visible {
 .save-browser {
   min-height: 0;
   height: 100%;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
   background: var(--surface);
 }
 
-.save-browser__toolbar {
-  min-height: 48px;
-  padding: 12px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  color: #555;
-  font-size: 11px;
-  letter-spacing: 1px;
-}
-
-.save-browser__actions {
-  display: flex;
-  gap: 10px;
-}
-
-.save-browser__actions button {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: #777;
-  font-size: 11px;
-  cursor: pointer;
-}
-
-.save-browser__actions button:hover:not(:disabled) {
-  color: var(--text-strong);
-}
-
-.save-browser__actions button:disabled {
-  color: #3b3b3b;
-  cursor: default;
-}
-
 .save-list {
+  height: 100%;
   min-height: 0;
   overflow-y: auto;
   padding-right: 8px;
