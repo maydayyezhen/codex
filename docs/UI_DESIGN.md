@@ -43,9 +43,11 @@ src/
 │  └─ saves.ts
 ├─ pages/
 │  ├─ LoadGamePage.tsx
-│  └─ NewGamePage.tsx
+│  ├─ NewGamePage.tsx
+│  └─ SettingsPage.tsx
 ├─ App.tsx
 ├─ main.tsx
+├─ settings.css
 ├─ styles.css
 └─ types.ts
 ```
@@ -58,13 +60,15 @@ Prototype data is separated from UI components so backend/API data can replace i
 
 The main menu is a standalone centered screen and does not use `PageShell`.
 
-Current entries:
+Primary entries:
 
 1. 继续游戏
 2. 新游戏
 3. 载入游戏
 
 The title is `LORE`.
+
+`设置` is a secondary system entry and is placed separately at the lower-left of the main menu screen rather than in the primary game-entry stack.
 
 ### 3.2 Secondary pages
 
@@ -111,7 +115,8 @@ Current behavior:
 - `Esc` on any secondary page returns to the main menu;
 - there is no visible back button;
 - module selection supports `ArrowLeft` / `ArrowRight`;
-- load-game save selection supports `ArrowUp` / `ArrowDown`.
+- load-game save selection supports `ArrowUp` / `ArrowDown`;
+- settings uses `ArrowUp` / `ArrowDown` to select rows and `ArrowLeft` / `ArrowRight` to modify the selected value.
 
 The absence of a visible back button is intentional and should be preserved unless the overall navigation model is explicitly redesigned.
 
@@ -258,7 +263,99 @@ The desktop top/bottom anchoring rule is relaxed on mobile: `SaveDetail` becomes
 
 The title remains an overlay. Any local spacing required for readability belongs to the page composition, not `PageShell`.
 
-## 8. Visual language
+## 8. Settings
+
+Page: `SettingsPage.tsx`
+
+Styles: `settings.css`
+
+### 8.1 Design goal
+
+The settings screen is intentionally small and focused. It should not imitate a large AAA options menu with many tabs because the current product only needs two settings domains:
+
+- DM Agent selection;
+- audio levels.
+
+The page uses plain grouped rows rather than cards, panels, or dashboard-style controls.
+
+### 8.2 Main-menu entry
+
+`设置` is placed at the lower-left of the main menu screen as a lower-priority system action.
+
+It is visually separated from:
+
+- 继续游戏;
+- 新游戏;
+- 载入游戏.
+
+This separation communicates that settings are system-level rather than a primary game-entry action.
+
+### 8.3 Composition
+
+The settings content is centered in the full-screen page canvas while `PageHeader` remains an independent overlay.
+
+Current groups:
+
+```text
+DM AGENT
+
+主持模型                         ‹ ChatGPT ›
+
+
+声音
+
+主音量                           ───●──── 80
+音乐音量                         ──●───── 60
+音效音量                         ────●─── 70
+```
+
+No tab bar is used because the number of settings is currently small.
+
+### 8.4 DM Agent
+
+Available values:
+
+- `ChatGPT`
+- `DeepSeek`
+
+The selector is a discrete left/right choice rather than a web-style dropdown.
+
+The setting is stored in `localStorage` under `lore.dmAgent`.
+
+### 8.5 Audio
+
+Current values:
+
+- 主音量;
+- 音乐音量;
+- 音效音量.
+
+Audio values use sliders from 0 to 100 and are stored in `localStorage`:
+
+- `lore.volume.master`
+- `lore.volume.music`
+- `lore.volume.effects`
+
+The UI value updates immediately. Actual audio-engine binding will be added when the audio system exists; the settings architecture should not require an extra Apply/Save action.
+
+### 8.6 Keyboard interaction
+
+Settings use a game-menu interaction model:
+
+- `ArrowUp` / `ArrowDown`: move the active setting row;
+- `ArrowLeft` / `ArrowRight`: change the active value;
+- volume changes use 5-point steps from the keyboard;
+- `Esc`: return to the main menu.
+
+Mouse interaction remains available for selecting rows, switching the DM Agent, and dragging volume sliders.
+
+### 8.7 Apply/save behavior
+
+There is no `应用`, `保存设置`, or confirmation button.
+
+Changes are treated as immediate settings changes and persisted automatically.
+
+## 9. Visual language
 
 Current palette is intentionally neutral and provisional:
 
@@ -277,7 +374,7 @@ The current design relies primarily on:
 - motion;
 - information hierarchy.
 
-## 9. Component responsibilities
+## 10. Component responsibilities
 
 ### `PageShell`
 
@@ -326,11 +423,20 @@ Responsible for:
 
 Responsible for composing the fixed save browser and the save detail area, and for page-level keyboard selection behavior.
 
+### `SettingsPage`
+
+Responsible for:
+
+- DM Agent selection;
+- audio-value state;
+- settings keyboard navigation;
+- settings persistence through `localStorage`.
+
 ### `App`
 
 Responsible for top-level screen selection and global `Esc` behavior.
 
-## 10. Current non-goals
+## 11. Current non-goals
 
 The current prototype intentionally does not yet define:
 
@@ -339,14 +445,16 @@ The current prototype intentionally does not yet define:
 - production image assets;
 - save screenshots;
 - backend/API integration;
-- persistent navigation/router architecture;
+- actual audio-engine binding;
+- DM Agent backend/provider initialization;
+- persistent router architecture;
 - character creation flow after module selection;
 - final animation timing system;
 - game-session screen.
 
 These should be introduced incrementally without breaking the established layout rules above.
 
-## 11. Change checklist
+## 12. Change checklist
 
 Whenever UI work is changed, check the following:
 
@@ -359,6 +467,8 @@ Whenever UI work is changed, check the following:
 - Does the save browser keep fixed geometry as save count changes?
 - Does a long save list scroll internally rather than expand the page?
 - Does the selected save stay visible during keyboard navigation?
+- Are settings still immediate and free of Apply/Save buttons?
+- Is the settings entry visually secondary to the three main menu actions?
 - Did a reusable layout pattern get duplicated instead of componentized?
 - Does this document still describe the actual implementation?
 
