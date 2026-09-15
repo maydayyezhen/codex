@@ -41,19 +41,18 @@ export function LoadGamePage() {
   const deleteSelectedSave = () => {
     if (!selectedId) return
 
-    setSaveRecords((current) => {
-      const selectedIndex = current.findIndex((save) => save.id === selectedId)
-      const nextRecords = current.filter((save) => save.id !== selectedId)
+    const selectedIndex = saveRecords.findIndex((save) => save.id === selectedId)
+    const nextRecords = saveRecords.filter((save) => save.id !== selectedId)
 
-      if (nextRecords.length === 0) {
-        setSelectedId(null)
-        return nextRecords
-      }
+    setSaveRecords(nextRecords)
 
-      const fallbackIndex = Math.min(selectedIndex, nextRecords.length - 1)
-      setSelectedId(nextRecords[fallbackIndex].id)
-      return nextRecords
-    })
+    if (nextRecords.length === 0) {
+      setSelectedId(null)
+      return
+    }
+
+    const fallbackIndex = Math.min(Math.max(selectedIndex, 0), nextRecords.length - 1)
+    setSelectedId(nextRecords[fallbackIndex].id)
   }
 
   useEffect(() => {
