@@ -158,18 +158,76 @@ button:focus-visible {
   gap: 52px;
 }
 
+.save-browser {
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  background: var(--surface);
+}
+
+.save-browser__toolbar {
+  min-height: 48px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #555;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+.save-browser__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.save-browser__actions button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #777;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.save-browser__actions button:hover:not(:disabled) {
+  color: var(--text-strong);
+}
+
+.save-browser__actions button:disabled {
+  color: #3b3b3b;
+  cursor: default;
+}
+
 .save-list {
   min-height: 0;
   overflow-y: auto;
-  padding-right: 16px;
+  padding-right: 8px;
+  background: var(--surface);
+  scrollbar-color: #3b3b3b var(--surface);
 }
 
 .save-list::-webkit-scrollbar {
   width: 5px;
 }
 
+.save-list::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+
 .save-list::-webkit-scrollbar-thumb {
-  background: #333;
+  background: #3b3b3b;
+}
+
+.save-list__empty {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  color: #4d4d4d;
+  font-size: 12px;
+  letter-spacing: 2px;
 }
 
 .save-item {
@@ -186,7 +244,7 @@ button:focus-visible {
 }
 
 .save-item:hover {
-  background: #161616;
+  background: #191919;
 }
 
 .save-item.is-active {
@@ -273,6 +331,12 @@ button:focus-visible {
   color: #555;
   font-size: 12px;
   line-height: 1.9;
+}
+
+.save-detail__empty {
+  color: #555;
+  font-size: 13px;
+  letter-spacing: 2px;
 }
 
 /* New game */
@@ -428,8 +492,8 @@ button:focus-visible {
     flex-direction: column;
   }
 
-  .save-list {
-    max-height: 340px;
+  .save-browser {
+    height: 420px;
     flex: 0 0 auto;
   }
 
