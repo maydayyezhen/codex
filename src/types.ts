@@ -1,4 +1,4 @@
-export type Screen = 'menu' | 'new-game' | 'load-game' | 'settings'
+export type Screen = 'menu' | 'new-game' | 'character-select' | 'load-game' | 'settings'
 
 export interface SaveRecord {
   id: string
@@ -16,4 +16,15 @@ export interface GameModule {
   tags: string[]
   hook: string
   description: string
+}
+
+export interface CharacterProfile {
+  id: string
+  name: string
+  occupation: string
+  avatarLabel: string
+  age: number
+  background: string
+  strengths: string[]
+  weaknesses: string[]
 }
