@@ -359,25 +359,6 @@ button:focus-visible {
   right: calc(var(--page-x) * -1);
 }
 
-.module-carousel__side {
-  position: absolute;
-  top: 50%;
-  color: #333;
-  font-size: 12px;
-  letter-spacing: 2px;
-  pointer-events: none;
-  white-space: nowrap;
-  transform: translateY(42px);
-}
-
-.module-carousel__side--left {
-  left: 0;
-}
-
-.module-carousel__side--right {
-  right: 0;
-}
-
 .module-carousel__dots {
   position: absolute;
   left: 50%;
@@ -485,9 +466,5 @@ button:focus-visible {
 
   .module-carousel__zone--right {
     right: -24px;
-  }
-
-  .module-carousel__side {
-    display: none;
   }
 }
