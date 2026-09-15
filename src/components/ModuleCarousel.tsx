@@ -10,8 +10,6 @@ export function ModuleCarousel({ modules }: ModuleCarouselProps) {
   const [direction, setDirection] = useState<'left' | 'right' | null>(null)
 
   const current = modules[currentIndex]
-  const previous = modules[(currentIndex - 1 + modules.length) % modules.length]
-  const next = modules[(currentIndex + 1) % modules.length]
 
   const moveTo = (index: number, nextDirection: 'left' | 'right') => {
     setDirection(nextDirection)
@@ -51,7 +49,6 @@ export function ModuleCarousel({ modules }: ModuleCarouselProps) {
   return (
     <div className="module-carousel">
       <button type="button" className="module-carousel__zone module-carousel__zone--left" onClick={movePrevious} aria-label="上一个模组">‹</button>
-      <span className="module-carousel__side module-carousel__side--left">{previous.title}</span>
 
       <article className={`module-card${direction ? ` module-card--exit-${direction}` : ''}`}>
         <div className="module-card__number">
@@ -64,7 +61,6 @@ export function ModuleCarousel({ modules }: ModuleCarouselProps) {
         <button type="button" className="primary-action">继续</button>
       </article>
 
-      <span className="module-carousel__side module-carousel__side--right">{next.title}</span>
       <button type="button" className="module-carousel__zone module-carousel__zone--right" onClick={moveNext} aria-label="下一个模组">›</button>
 
       <div className="module-carousel__dots" aria-label="模组位置">
