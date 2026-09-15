@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { PageShell } from '../components/PageShell'
+import '../settings.css'
 
 type DmAgent = 'ChatGPT' | 'DeepSeek'
 type SettingKey = 'agent' | 'master' | 'music' | 'effects'
