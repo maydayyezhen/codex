@@ -204,26 +204,45 @@ Conceptually:
 ┌─────────────────────────────────────────────────────────┐
 │ Header overlay                                          │
 │                                                         │
-│      save list              preview                     │
-│      01 ...                 ┌──────────────────────┐    │
-│      02 ...                 │                      │    │
-│      03 ...                 │   empty placeholder  │    │
-│      04 ...                 │                      │    │
-│      ...                    └──────────────────────┘    │
-│                              save details               │
-│                                           载入游戏      │
+│      save list              ┌──────────────────────┐    │
+│      01 ...                 │                      │    │
+│      02 ...                 │       preview        │    │
+│      03 ...                 │                      │    │
+│      04 ...                 └──────────────────────┘    │
+│      ...                                                │
+│                              save title        载入游戏 │
+│                              location                   │
+│                              play time                  │
+│                              saved at                   │
 └─────────────────────────────────────────────────────────┘
 ```
 
-The load-game composition is now positioned independently within the full-screen canvas. The title overlay does not create top padding for the page.
+The load-game composition is positioned independently within the full-screen canvas. The title overlay does not create top padding for the page.
 
 Desktop layout behavior:
 
 - the entire load-game composition is centered in the viewport;
 - width is capped at 1200px;
 - the left column is compact and scrollable;
+- the right column uses the full height of the load-game composition;
+- the right preview is anchored to the top of the right column;
+- the save information and primary action are anchored to the bottom of the right column;
+- the vertical space between preview and details is flexible and expands automatically;
+- the right column therefore behaves as one vertically balanced unit rather than several floating blocks;
 - the right preview is currently an empty 16:9 placeholder;
 - no image assets are required at this stage.
+
+The structural rule for the right column is:
+
+```text
+SaveDetail
+├─ Preview            ← top anchor
+└─ DetailContent      ← bottom anchor
+   ├─ Save metadata
+   └─ Load action
+```
+
+This is implemented with a vertical flex container using `justify-content: space-between`.
 
 ### 7.3 Save-list behavior
 
@@ -236,6 +255,8 @@ When the list exceeds the available height, the list itself scrolls instead of g
 ### 7.4 Mobile behavior
 
 On narrow screens the master/detail layout becomes vertical.
+
+The desktop top/bottom anchoring rule is relaxed on mobile: `SaveDetail` becomes normal-height content with an explicit gap between preview and details so that the vertical stack remains readable.
 
 The title remains an overlay. Any spacing used to keep mobile content readable belongs to the load-game page's local layout and is not reserved by `PageShell`.
 
@@ -290,7 +311,12 @@ Responsible for compact save selection.
 
 ### `SaveDetail`
 
-Responsible for the selected save preview placeholder and metadata.
+Responsible for:
+
+- the selected save preview placeholder;
+- selected-save metadata;
+- the load action;
+- keeping the preview anchored to the top and the detail/action group anchored to the bottom on desktop.
 
 ### `App`
 
