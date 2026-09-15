@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import type { SaveRecord } from '../types'
 
 interface SaveListProps {
@@ -7,6 +8,12 @@ interface SaveListProps {
 }
 
 export function SaveList({ saves, selectedId, onSelect }: SaveListProps) {
+  const activeItemRef = useRef<HTMLButtonElement | null>(null)
+
+  useEffect(() => {
+    activeItemRef.current?.scrollIntoView({ block: 'nearest' })
+  }, [selectedId, saves.length])
+
   return (
     <div className="save-list" role="listbox" aria-label="游戏存档">
       {saves.length === 0 ? (
@@ -18,6 +25,7 @@ export function SaveList({ saves, selectedId, onSelect }: SaveListProps) {
           return (
             <button
               key={save.id}
+              ref={active ? activeItemRef : undefined}
               type="button"
               className={`save-item${active ? ' is-active' : ''}`}
               onClick={() => onSelect(save)}
