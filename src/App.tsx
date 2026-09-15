@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { MainMenu } from './components/MainMenu'
+import { CharacterCreatePage } from './pages/CharacterCreatePage'
 import { CharacterSelectPage } from './pages/CharacterSelectPage'
 import { LoadGamePage } from './pages/LoadGamePage'
 import { NewGamePage } from './pages/NewGamePage'
@@ -15,6 +16,12 @@ export default function App() {
       if (screen === 'menu' || screen === 'character-select') return
 
       event.preventDefault()
+
+      if (screen === 'character-create') {
+        setScreen('character-select')
+        return
+      }
+
       setScreen('menu')
     }
 
@@ -30,11 +37,13 @@ export default function App() {
     return (
       <CharacterSelectPage
         onBack={() => setScreen('new-game')}
+        onCreate={() => setScreen('character-create')}
         onContinue={(_character: CharacterProfile) => undefined}
       />
     )
   }
 
+  if (screen === 'character-create') return <CharacterCreatePage />
   if (screen === 'load-game') return <LoadGamePage />
   if (screen === 'settings') return <SettingsPage />
 
