@@ -1,10 +1,19 @@
 import type { SaveRecord } from '../types'
 
 interface SaveDetailProps {
-  save: SaveRecord
+  save?: SaveRecord
 }
 
 export function SaveDetail({ save }: SaveDetailProps) {
+  if (!save) {
+    return (
+      <section className="save-detail save-detail--empty" aria-live="polite">
+        <div className="save-detail__preview" aria-label="存档预览占位" />
+        <div className="save-detail__empty">暂无可载入的存档</div>
+      </section>
+    )
+  }
+
   return (
     <section className="save-detail" aria-live="polite">
       <div className="save-detail__preview" aria-label="存档预览占位" />
