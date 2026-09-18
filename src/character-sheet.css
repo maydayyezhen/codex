@@ -24,21 +24,6 @@
   box-shadow: 0 24px 70px rgba(0,0,0,.45);
 }
 
-.character-sheet-close {
-  position: absolute;
-  top: -24px;
-  right: -32px;
-  border: 0;
-  background: transparent;
-  color: #777;
-  font-size: 26px;
-  cursor: pointer;
-}
-
-.character-sheet-close:hover {
-  color: #fff;
-}
-
 .character-sheet-arrow {
   position: absolute;
   top: 50%;
