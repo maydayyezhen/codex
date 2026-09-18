@@ -9,14 +9,15 @@ interface CharacterDetailProps {
 export function CharacterDetail({ character, onClose }: CharacterDetailProps) {
   const [side, setSide] = useState<'front' | 'back'>('front')
 
+  const flip = () => setSide(side === 'front' ? 'back' : 'front')
+
   return (
     <div className="character-sheet-overlay" onClick={onClose}>
       <section className="character-a4-stage" onClick={(e) => e.stopPropagation()}>
-        <button className="character-sheet-close" onClick={onClose}>×</button>
-
         <button
           className="character-sheet-arrow character-sheet-arrow--left"
-          onClick={() => setSide(side === 'front' ? 'back' : 'front')}
+          onClick={flip}
+          aria-label="上一面"
         >
           ‹
         </button>
@@ -36,7 +37,8 @@ export function CharacterDetail({ character, onClose }: CharacterDetailProps) {
 
         <button
           className="character-sheet-arrow character-sheet-arrow--right"
-          onClick={() => setSide(side === 'front' ? 'back' : 'front')}
+          onClick={flip}
+          aria-label="下一面"
         >
           ›
         </button>
