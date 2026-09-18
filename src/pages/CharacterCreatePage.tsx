@@ -1,11 +1,13 @@
 import { PageShell } from '../components/PageShell'
-import { CharacterSheetPreview } from '../components/CharacterSheetPreview'
+import { CharacterSheet } from '../components/CharacterSheet'
 
 export function CharacterCreatePage() {
   return (
     <PageShell path="LORE / CHARACTER" title="创建人物" bodyClassName="character-create-page">
       <div className="character-create-layout">
-        <CharacterSheetPreview />
+        <section className="character-create-sheet">
+          <CharacterSheet />
+        </section>
 
         <section className="character-create-chat">
           <header>
