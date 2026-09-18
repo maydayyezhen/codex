@@ -8,32 +8,10 @@
   background: rgba(8, 8, 8, .88);
 }
 
-.character-a4-view {
+.character-a4-stage {
   position: relative;
   height: min(90vh, 1122px);
   aspect-ratio: 210 / 297;
-}
-
-.character-a4-tabs {
-  position: absolute;
-  top: -42px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 4px;
-}
-
-.character-a4-tabs button {
-  border: 0;
-  background: #222;
-  color: #777;
-  padding: 8px 16px;
-  cursor: pointer;
-}
-
-.character-a4-tabs button.active {
-  color: #fff;
-  background: #444;
 }
 
 .character-a4-paper {
@@ -44,6 +22,47 @@
   color: #171717;
   border: 1px solid #c9bdab;
   box-shadow: 0 24px 70px rgba(0,0,0,.45);
+}
+
+.character-sheet-close {
+  position: absolute;
+  top: -24px;
+  right: -32px;
+  border: 0;
+  background: transparent;
+  color: #777;
+  font-size: 26px;
+  cursor: pointer;
+}
+
+.character-sheet-close:hover {
+  color: #fff;
+}
+
+.character-sheet-arrow {
+  position: absolute;
+  top: 50%;
+  width: 42px;
+  height: 54px;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  color: #555;
+  font-size: 42px;
+  font-weight: 200;
+  cursor: pointer;
+}
+
+.character-sheet-arrow:hover {
+  color: #fff;
+}
+
+.character-sheet-arrow--left {
+  left: -58px;
+}
+
+.character-sheet-arrow--right {
+  right: -58px;
 }
 
 .character-a4-placeholder {
@@ -64,8 +83,16 @@
 }
 
 @media (max-width: 700px) {
-  .character-a4-view {
-    width: calc(100vw - 48px);
+  .character-a4-stage {
+    width: calc(100vw - 80px);
     height: auto;
+  }
+
+  .character-sheet-arrow--left {
+    left: -40px;
+  }
+
+  .character-sheet-arrow--right {
+    right: -40px;
   }
 }
