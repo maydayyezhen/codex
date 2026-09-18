@@ -7,36 +7,41 @@ interface CharacterDetailProps {
 
 export function CharacterDetail({ character, onClose }: CharacterDetailProps) {
   return (
-    <div className="character-detail-backdrop" onClick={onClose} role="presentation">
+    <div className="character-sheet-overlay" onClick={onClose} role="presentation">
       <section
-        className="character-detail"
-        aria-modal="true"
+        className="character-sheet-view"
         role="dialog"
+        aria-modal="true"
         aria-label={`${character.name}人物详情`}
         onClick={(event) => event.stopPropagation()}
       >
-        <button type="button" className="character-detail__close" onClick={onClose} aria-label="关闭人物详情">
-          ×
-        </button>
+        <header className="character-sheet-view__header">
+          <div>
+            <p>LORE / CHARACTER DETAIL</p>
+            <h2>{character.name}</h2>
+            <span>{character.occupation}</span>
+          </div>
+          <button type="button" onClick={onClose}>×</button>
+        </header>
 
-        <div className="character-detail__avatar" aria-hidden="true">{character.avatarLabel}</div>
-
-        <div className="character-detail__body">
-          <p className="character-detail__eyebrow">CHARACTER FILE</p>
-          <h2>{character.name}</h2>
-          <p className="character-detail__occupation">{character.occupation} · {character.age}岁</p>
-          <p className="character-detail__background">{character.background}</p>
-
-          <dl className="character-detail__meta">
-            <div>
-              <dt>擅长</dt>
-              <dd>{character.strengths.join(' / ')}</dd>
+        <div className="character-sheet-view__pages">
+          <article className="character-sheet-page">
+            <div className="character-sheet-page__label">正面</div>
+            <div className="character-sheet-page__content">
+              <div className="sheet-block">身份信息</div>
+              <div className="sheet-block">属性 / 技能</div>
+              <div className="sheet-block">战斗 / 状态</div>
             </div>
-            <div>
-              <dt>弱点</dt>
-              <dd>{character.weaknesses.join(' / ')}</dd>
+          </article>
+
+          <article className="character-sheet-page">
+            <div className="character-sheet-page__label">反面</div>
+            <div className="character-sheet-page__content">
+              <div className="sheet-block">背景故事</div>
+              <div className="sheet-block">关系 / 物品</div>
+              <div className="sheet-block">记录 / 备注</div>
             </div>
-          </dl>
+          </article>
         </div>
       </section>
     </div>
