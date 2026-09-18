@@ -11,12 +11,15 @@ export function CharacterDetail({ character, onClose }: CharacterDetailProps) {
 
   return (
     <div className="character-sheet-overlay" onClick={onClose}>
-      <section className="character-a4-view" onClick={(e) => e.stopPropagation()}>
-        <div className="character-a4-tabs">
-          <button className={side === 'front' ? 'active' : ''} onClick={() => setSide('front')}>正面</button>
-          <button className={side === 'back' ? 'active' : ''} onClick={() => setSide('back')}>反面</button>
-          <button onClick={onClose}>×</button>
-        </div>
+      <section className="character-a4-stage" onClick={(e) => e.stopPropagation()}>
+        <button className="character-sheet-close" onClick={onClose}>×</button>
+
+        <button
+          className="character-sheet-arrow character-sheet-arrow--left"
+          onClick={() => setSide(side === 'front' ? 'back' : 'front')}
+        >
+          ‹
+        </button>
 
         <div className="character-a4-paper">
           {side === 'front' ? (
@@ -30,6 +33,13 @@ export function CharacterDetail({ character, onClose }: CharacterDetailProps) {
             </div>
           )}
         </div>
+
+        <button
+          className="character-sheet-arrow character-sheet-arrow--right"
+          onClick={() => setSide(side === 'front' ? 'back' : 'front')}
+        >
+          ›
+        </button>
       </section>
     </div>
   )
