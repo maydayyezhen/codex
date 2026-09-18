@@ -1,19 +1,71 @@
-/* CoC7 inspired A4 investigator sheet */
-.character-sheet-overlay{position:fixed;inset:0;z-index:100;background:rgba(8,8,8,.88);display:grid;place-items:center}
-.character-a4{position:relative;width:min(760px,calc(100vw - 80px));height:min(1075px,calc(100vh - 80px))}
-.character-a4__toolbar{position:absolute;top:-42px;left:50%;transform:translateX(-50%);display:flex;gap:4px}
-.character-a4__toolbar button{border:0;background:#25272b;color:#888;padding:8px 16px;cursor:pointer}
-.character-a4__toolbar button.active,.character-a4__toolbar button:hover{color:#fff}
-.character-a4__paper{height:100%;width:100%;overflow:hidden;padding:32px;background:#eee7d8;color:#181818;border:1px solid #c5bcae;box-shadow:0 30px 80px rgba(0,0,0,.55);font-family:Georgia,'Songti SC',serif}
-.character-a4__header{display:grid;grid-template-columns:1fr 150px;gap:20px;padding-bottom:18px;border-bottom:2px solid #222}
-.character-a4__header small{color:#666;letter-spacing:2px}
-.character-a4__header h2{margin:12px 0 6px;font-size:28px}
-.character-a4__header p{margin:0}
-.character-a4__portrait{aspect-ratio:3/4;display:grid;place-items:center;border:1px solid #aaa;background:#ddd4c3;color:#777}
-.sheet-section{margin-top:16px}.sheet-section h3{font-size:12px;letter-spacing:2px;border-bottom:1px solid #aaa;padding-bottom:5px}
-.attribute-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}.attribute-grid div{border:1px solid #aaa;text-align:center;padding:7px 2px}.attribute-grid span{display:block;font-size:20px;font-weight:bold}.attribute-grid small{color:#666}
-.resource-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}.resource-grid span{border:1px solid #aaa;padding:8px;text-align:center;font-size:11px}
-.skill-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 24px}.skill-grid div{display:grid;grid-template-columns:1fr 35px 45px;border-bottom:1px dotted #aaa;padding:4px 0;font-size:11px}
-.weapon-table{border:1px solid #aaa;padding:10px;line-height:2;font-size:12px}
-.sheet-columns{display:grid;grid-template-columns:1fr 1fr;gap:12px}.sheet-columns section{min-height:120px;border:1px solid #aaa;padding:12px}.sheet-columns h3{border:0}
-@media(max-width:700px){.character-a4{width:calc(100vw-40px);height:calc(100vh-100px)}.attribute-grid{grid-template-columns:repeat(4,1fr)}.resource-grid{grid-template-columns:repeat(2,1fr)}}
+.character-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 8, 8, .88);
+}
+
+.character-a4-view {
+  position: relative;
+  height: min(90vh, 1122px);
+  aspect-ratio: 210 / 297;
+}
+
+.character-a4-tabs {
+  position: absolute;
+  top: -42px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+}
+
+.character-a4-tabs button {
+  border: 0;
+  background: #222;
+  color: #777;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.character-a4-tabs button.active {
+  color: #fff;
+  background: #444;
+}
+
+.character-a4-paper {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 210 / 297;
+  background: #f1eadc;
+  color: #171717;
+  border: 1px solid #c9bdab;
+  box-shadow: 0 24px 70px rgba(0,0,0,.45);
+}
+
+.character-a4-placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-content: center;
+  text-align: center;
+}
+
+.character-a4-placeholder h2 {
+  margin: 0 0 12px;
+  font-weight: 400;
+}
+
+.character-a4-placeholder p {
+  color: #666;
+}
+
+@media (max-width: 700px) {
+  .character-a4-view {
+    width: calc(100vw - 48px);
+    height: auto;
+  }
+}
